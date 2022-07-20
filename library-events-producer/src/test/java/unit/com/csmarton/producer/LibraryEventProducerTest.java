@@ -43,7 +43,7 @@ class LibraryEventProducerTest {
     void sendLibraryEvent_Approach2_failure() throws JsonProcessingException {
         //given
         Book book = Book.builder()
-                .boolId(123)
+                .bookId(123)
                 .bookAuthor(null)
                 .bookName("Little Princess")
                 .build();
@@ -67,7 +67,7 @@ class LibraryEventProducerTest {
     void sendLibraryEvent_Approach2_success() throws JsonProcessingException, ExecutionException, InterruptedException {
         //given
         Book book = Book.builder()
-                .boolId(123)
+                .bookId(123)
                 .bookAuthor(null)
                 .bookName("Little Princess")
                 .build();

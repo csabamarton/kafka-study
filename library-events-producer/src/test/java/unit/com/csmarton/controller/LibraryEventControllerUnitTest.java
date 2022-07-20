@@ -36,7 +36,7 @@ public class LibraryEventControllerUnitTest {
     void postLibraryEvent() throws Exception {
         //given
         Book book = Book.builder()
-                .boolId(123)
+                .bookId(123)
                 .bookAuthor("Hanga")
                 .bookName("Little Princess")
                 .build();
@@ -61,7 +61,7 @@ public class LibraryEventControllerUnitTest {
     void postLibraryEvent_4xx() throws Exception {
         //given
         Book book = Book.builder()
-                .boolId(123)
+                .bookId(123)
                 .bookAuthor(null)
                 .bookName("Little Princess")
                 .build();

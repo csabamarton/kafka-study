@@ -10,8 +10,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 public class Book {
-    @NotNull
-    private Integer boolId;
+    private Integer bookId;
     @NotBlank
     private String bookName;
     @NotBlank

@@ -4,6 +4,8 @@ import com.csmarton.LibraryEventsProducerApplication;
 import com.csmarton.domain.Book;
 import com.csmarton.domain.LibraryEvent;
 import com.csmarton.domain.LibraryEventType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
@@ -40,6 +42,8 @@ public class LibraryEventControllerTest {
 
     private Consumer<Integer, String> consumer;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
     void setUp() {
         Map<String, Object> configs = new HashMap<>(KafkaTestUtils.consumerProps("group1", "true", embeddedKafkaBroker));
@@ -56,7 +60,7 @@ public class LibraryEventControllerTest {
     void postLibraryEvent() {
 
         Book book = Book.builder()
-                .boolId(123)
+                .bookId(123)
                 .bookAuthor("Hanga")
                 .bookName("Little Princess")
                 .build();
@@ -78,6 +82,39 @@ public class LibraryEventControllerTest {
         ConsumerRecord<Integer, String> singleRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
         String expectedJson = "{\"libraryEventId\":null,\"libraryEventType\":\"NEW\",\"book\":{\"boolId\":123,\"bookName\":\"Little Princess\",\"bookAuthor\":\"Hanga\"}}";
         String value = singleRecord.value();
+
+        assertEquals(expectedJson, value);
+    }
+
+
+    @Test
+    void putLibraryEvent() throws JsonProcessingException {
+
+        Book book = Book.builder()
+                .bookId(123)
+                .bookAuthor("Hanga")
+                .bookName("Little Princess")
+                .build();
+
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(123)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("content-type", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<LibraryEvent> request = new HttpEntity<>(libraryEvent);
+
+        ResponseEntity<LibraryEvent> response = restTemplate.exchange("/v1/libraryevent", HttpMethod.PUT, request, LibraryEvent.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        ConsumerRecord<Integer, String> singleRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
+        String expectedJson = "{\"libraryEventId\":123,\"libraryEventType\":\"UPDATE\",\"book\":{\"boolId\":123,\"bookName\":\"Little Princess\",\"bookAuthor\":\"Hanga\"}}";
+        String value = singleRecord.value();
+
+        LibraryEvent libraryEventResponse = objectMapper.readValue(value, LibraryEvent.class);
 
         assertEquals(expectedJson, value);
     }
