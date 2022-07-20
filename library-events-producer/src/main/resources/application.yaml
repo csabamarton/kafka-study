@@ -16,6 +16,11 @@ spring:
     admin:
       properties:
         bootstrap.servers: localhost:9092,localhost:9093,localhost:9094
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
 ---
 spring:
   config:

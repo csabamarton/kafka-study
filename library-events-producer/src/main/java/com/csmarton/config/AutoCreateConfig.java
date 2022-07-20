@@ -1,4 +1,4 @@
-package com.csmarton.libraryeventsproducer.config;
+package com.csmarton.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
