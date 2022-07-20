@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static com.csmarton.controller.LibraryEventsController.URL_POST_LIBRARY_EVENT;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,5 +85,56 @@ public class LibraryEventControllerUnitTest {
                 .andExpect(content().string("book.bookAuthor - must not be blank"));
     }
 
+    @Test
+    void putLibraryEvent() throws Exception {
+        //given
+        Book book = Book.builder()
+                .bookId(123)
+                .bookAuthor("Hanga")
+                .bookName("Little Princess")
+                .build();
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(123)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+
+        String string = objectMapper.writeValueAsString(libraryEvent);
+
+        when(libraryEventProducer.sendLibraryEvent_Approach2(isA(LibraryEvent.class))).thenReturn(null);
+
+        //when
+        mockMvc.perform(put(URL_POST_LIBRARY_EVENT)
+                        .content(string)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void putLibraryEvent_4xx() throws Exception {
+        //given
+        Book book = Book.builder()
+                .bookId(123)
+                .bookAuthor(null)
+                .bookName("Little Princess")
+                .build();
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(123)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+
+        String string = objectMapper.writeValueAsString(libraryEvent);
+
+        when(libraryEventProducer.sendLibraryEvent_Approach2(isA(LibraryEvent.class))).thenReturn(null);
+
+
+        //when
+        mockMvc.perform(put(URL_POST_LIBRARY_EVENT)
+                        .content(string)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().string("book.bookAuthor - must not be blank"));
+    }
 
 }
