@@ -137,4 +137,29 @@ public class LibraryEventControllerUnitTest {
                 .andExpect(content().string("book.bookAuthor - must not be blank"));
     }
 
+    @Test
+    void updateLibraryEvent_withNullLibraryEventId() throws Exception {
+        //given
+        Book book = Book.builder()
+                .bookId(123)
+                .bookAuthor("Hanga")
+                .bookName("Little Princess")
+                .build();
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(null)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+
+        String string = objectMapper.writeValueAsString(libraryEvent);
+
+        when(libraryEventProducer.sendLibraryEvent_Approach2(isA(LibraryEvent.class))).thenReturn(null);
+
+
+        //when
+        mockMvc.perform(put(URL_POST_LIBRARY_EVENT)
+                        .content(string)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }
